@@ -17,7 +17,7 @@ public class CurrencyDTO {
         return code;
     }
 
-    public String getFullName() {
+    public String getName() {
         return fullName;
     }
 
