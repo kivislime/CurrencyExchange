@@ -11,7 +11,7 @@ import org.kivislime.currencyexchange.util.JsonUtil;
 import org.kivislime.currencyexchange.service.CurrencyService;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 @WebServlet(value = "/currencies")
 public class CurrenciesServlet extends HttpServlet {
@@ -25,23 +25,23 @@ public class CurrenciesServlet extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
-        List<CurrencyDTO> currencyDTOS = currencyService.getAllCurrencies();
+        Set<CurrencyDTO> currencyDTOS = currencyService.getAllCurrencies();
         String json = JsonUtil.toJson(currencyDTOS);
         response.getWriter().write(json);
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String code = request.getParameter("code");
-        String fullName = request.getParameter("fullname");
+        String name = request.getParameter("name");
         String sign = request.getParameter("sign");
 
-        if (code == null || fullName == null || sign == null) {
+        if (code == null || name == null || sign == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"error\":\"Missing required parameters\"}");
             return;
         }
 
-        CurrencyCreationDTO currencyCreationDTO = new CurrencyCreationDTO(code, fullName, sign);
+        CurrencyCreationDTO currencyCreationDTO = new CurrencyCreationDTO(code, name, sign);
 
         CurrencyDTO result = currencyService.addCurrency(currencyCreationDTO);
         response.setStatus(HttpServletResponse.SC_CREATED);

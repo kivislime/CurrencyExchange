@@ -4,12 +4,12 @@ import java.util.Objects;
 
 public class CurrencyCreationDTO {
     private final String code;
-    private final String fullName;
+    private final String name;
     private final String sign;
 
-    public CurrencyCreationDTO(String code, String fullName, String sign) {
+    public CurrencyCreationDTO(String code, String name, String sign) {
         this.code = code;
-        this.fullName = fullName;
+        this.name = name;
         this.sign = sign;
     }
 
@@ -17,8 +17,8 @@ public class CurrencyCreationDTO {
         return code;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getName() {
+        return name;
     }
 
     public String getSign() {
@@ -27,7 +27,7 @@ public class CurrencyCreationDTO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(code, fullName, sign);
+        return Objects.hash(code, name, sign);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class CurrencyCreationDTO {
 
         CurrencyCreationDTO that = (CurrencyCreationDTO) obj;
         return Objects.equals(code, that.code) &&
-                Objects.equals(fullName, that.fullName) &&
+                Objects.equals(name, that.name) &&
                 Objects.equals(sign, that.sign);
     }
 }
