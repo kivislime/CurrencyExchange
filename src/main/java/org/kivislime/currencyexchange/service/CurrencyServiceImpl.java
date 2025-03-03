@@ -2,8 +2,9 @@ package org.kivislime.currencyexchange.service;
 
 import org.kivislime.currencyexchange.model.*;
 
-import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CurrencyServiceImpl implements CurrencyService {
     private final CurrencyDao currencyDao;
@@ -14,12 +15,10 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public Set<CurrencyDTO> getAllCurrencies() {
-        Set<Currency> currencies = currencyDao.getCurrencies();
-        Set<CurrencyDTO> dtos = new HashSet<>();
-        for (Currency currency : currencies) {
-            dtos.add(convertToDTO(currency));
-        }
-        return dtos;
+        return currencyDao.getCurrencies()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -43,14 +42,32 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public Set<ExchangeRateDTO> getAllExchangeRates() {
-        Set<ExchangeRate> exchangeRates = currencyDao.getAllExchangeRates();
-        Set<ExchangeRateDTO> exchangeRateDTOS = new HashSet<>();
-
-        for (ExchangeRate exchangeRate : exchangeRates) {
-            exchangeRateDTOS.add(convertToDTO(exchangeRate));
-        }
-        return exchangeRateDTOS;
+        return currencyDao.getAllExchangeRates()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toSet());
     }
+
+    @Override
+    public ExchangeRateDTO getExchangeRateByPair(String pathInfo) {
+        String firstOfPair = pathInfo.substring(0, pathInfo.length() / 2);
+        String secondOfPair = pathInfo.substring(pathInfo.length() / 2);
+
+        Currency baseCurrency = currencyDao.getCurrency(firstOfPair)
+                .orElseThrow(() -> new CurrencyNotFoundException("Currency " + firstOfPair + " not found"));
+        Currency targetCurrency = currencyDao.getCurrency(secondOfPair)
+                .orElseThrow(() -> new CurrencyNotFoundException("Currency " + secondOfPair + " not found"));
+
+        Optional<ExchangeRate> optionalExchangeRate = currencyDao.getExchangeRateByPair(baseCurrency, targetCurrency);
+
+        if (optionalExchangeRate.isEmpty()) {
+            //TODO: изменить на другой тип ошибки
+            throw new CurrencyNotFoundException("Exchange rate for " + baseCurrency.getCode() + " to " + targetCurrency.getCode() + " not found");
+        }
+
+        return convertToDTO(optionalExchangeRate.get());
+    }
+
 
     private Currency convertToCurrency(CurrencyCreationDTO currencyCreationDTO) {
         return new Currency(null, currencyCreationDTO.getCode(), currencyCreationDTO.getName(), currencyCreationDTO.getSign());
@@ -62,6 +79,7 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     private ExchangeRateDTO convertToDTO(ExchangeRate exchangeRate) {
         return new ExchangeRateDTO(
+                exchangeRate.getId(),
                 convertToDTO(exchangeRate.getBaseCurrency()),
                 convertToDTO(exchangeRate.getTargetCurrency()),
                 exchangeRate.getRate());

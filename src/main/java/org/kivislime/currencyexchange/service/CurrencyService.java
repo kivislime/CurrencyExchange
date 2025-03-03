@@ -16,4 +16,6 @@ public interface CurrencyService {
     CurrencyDTO getCurrency(String currency);
 
     Set<ExchangeRateDTO> getAllExchangeRates();
+
+    ExchangeRateDTO getExchangeRateByPair(String pathInfo);
 }

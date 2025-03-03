@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.*;
 
 //TODO: нет обработки, если таблица пустая. Че выдаст?
+//TODO: переименоват домены бд? Всё с маленькой буквы
 public class CurrencyDaoImpl implements CurrencyDao {
     @Override
     public Set<Currency> getCurrencies() {
@@ -135,6 +136,31 @@ public class CurrencyDaoImpl implements CurrencyDao {
                     exchangeRates.add(new ExchangeRate(exchangeId, baseCurrency, targetCurrency, rate));
                 }
                 return exchangeRates;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<ExchangeRate> getExchangeRateByPair(Currency baseCurrency, Currency targetCurrency) {
+        String sql = "SELECT * FROM exchangerates WHERE basecurrencyid = ? AND targetcurrencyid = ?";
+        try (Connection conn = DatabaseConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, baseCurrency.getId());
+            stmt.setLong(2, targetCurrency.getId());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(new ExchangeRate(
+                            rs.getLong("id"),
+                            baseCurrency,
+                            targetCurrency,
+                            rs.getDouble("rate")
+                    ));
+                } else
+                    return Optional.empty();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

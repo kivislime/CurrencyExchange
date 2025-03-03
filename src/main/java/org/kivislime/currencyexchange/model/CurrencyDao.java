@@ -13,4 +13,6 @@ public interface CurrencyDao{
     Currency addCurrency(Currency currency);
 
     Set<ExchangeRate> getAllExchangeRates();
+
+    Optional<ExchangeRate> getExchangeRateByPair(Currency firsCurrency, Currency secondCurrency);
 }

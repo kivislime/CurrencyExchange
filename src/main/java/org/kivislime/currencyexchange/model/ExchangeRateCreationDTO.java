@@ -2,21 +2,15 @@ package org.kivislime.currencyexchange.model;
 
 import java.util.Objects;
 
-public class ExchangeRateDTO {
-    private final Long id;
+public class ExchangeRateCreationDTO {
     private final CurrencyDTO baseCurrency;
     private final CurrencyDTO targetCurrency;
     private final Double rate;
 
-    public ExchangeRateDTO(Long id, CurrencyDTO baseCurrency, CurrencyDTO targetCurrency, Double rate) {
-        this.id = id;
+    public ExchangeRateCreationDTO(CurrencyDTO baseCurrency, CurrencyDTO targetCurrency, Double rate) {
         this.baseCurrency = baseCurrency;
         this.targetCurrency = targetCurrency;
         this.rate = rate;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public CurrencyDTO getBaseCurrency() {
@@ -33,7 +27,7 @@ public class ExchangeRateDTO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, baseCurrency, targetCurrency, rate);
+        return Objects.hash(baseCurrency, targetCurrency, rate);
     }
 
     @Override
@@ -41,12 +35,10 @@ public class ExchangeRateDTO {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
 
-        ExchangeRateDTO that = (ExchangeRateDTO) obj;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(baseCurrency, that.baseCurrency) &&
+        ExchangeRateCreationDTO that = (ExchangeRateCreationDTO) obj;
+        return Objects.equals(baseCurrency, that.baseCurrency) &&
                 Objects.equals(targetCurrency, that.targetCurrency) &&
                 Objects.equals(rate, that.rate);
     }
 
 }
-
