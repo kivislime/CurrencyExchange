@@ -1,5 +1,6 @@
 package org.kivislime.currencyexchange.model;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 
@@ -15,4 +16,8 @@ public interface CurrencyDao{
     Set<ExchangeRate> getAllExchangeRates();
 
     Optional<ExchangeRate> getExchangeRateByPair(Currency firsCurrency, Currency secondCurrency);
+
+    boolean exchangeRateExists(Long id, Long id1);
+
+    ExchangeRate addExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate);
 }

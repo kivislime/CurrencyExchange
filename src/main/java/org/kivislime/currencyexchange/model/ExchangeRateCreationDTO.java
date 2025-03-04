@@ -3,25 +3,25 @@ package org.kivislime.currencyexchange.model;
 import java.util.Objects;
 
 public class ExchangeRateCreationDTO {
-    private final CurrencyDTO baseCurrency;
-    private final CurrencyDTO targetCurrency;
-    private final Double rate;
+    private final String baseCurrency;
+    private final String targetCurrency;
+    private final String rate;
 
-    public ExchangeRateCreationDTO(CurrencyDTO baseCurrency, CurrencyDTO targetCurrency, Double rate) {
+    public ExchangeRateCreationDTO(String baseCurrency, String targetCurrency, String rate) {
         this.baseCurrency = baseCurrency;
         this.targetCurrency = targetCurrency;
         this.rate = rate;
     }
 
-    public CurrencyDTO getBaseCurrency() {
+    public String getBaseCurrency() {
         return baseCurrency;
     }
 
-    public CurrencyDTO getTargetCurrency() {
+    public String getTargetCurrency() {
         return targetCurrency;
     }
 
-    public Double getRate() {
+    public String getRate() {
         return rate;
     }
 

@@ -1,14 +1,15 @@
 package org.kivislime.currencyexchange.model;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class ExchangeRateDTO {
     private final Long id;
     private final CurrencyDTO baseCurrency;
     private final CurrencyDTO targetCurrency;
-    private final Double rate;
+    private final BigDecimal rate;
 
-    public ExchangeRateDTO(Long id, CurrencyDTO baseCurrency, CurrencyDTO targetCurrency, Double rate) {
+    public ExchangeRateDTO(Long id, CurrencyDTO baseCurrency, CurrencyDTO targetCurrency, BigDecimal rate) {
         this.id = id;
         this.baseCurrency = baseCurrency;
         this.targetCurrency = targetCurrency;
@@ -27,7 +28,7 @@ public class ExchangeRateDTO {
         return targetCurrency;
     }
 
-    public Double getRate() {
+    public BigDecimal getRate() {
         return rate;
     }
 

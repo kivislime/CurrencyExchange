@@ -2,6 +2,7 @@ package org.kivislime.currencyexchange.service;
 
 import org.kivislime.currencyexchange.model.*;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public CurrencyDTO addCurrency(CurrencyCreationDTO currencyCreationDTO) {
+        //TODO: добавить проверку перед вставкой, так как нужно возвращать код ошибки о неудаче
         Currency currencyToAdd = convertToCurrency(currencyCreationDTO);
         Currency currencyResult = currencyDao.addCurrency(currencyToAdd);
         return convertToDTO(currencyResult);
@@ -66,6 +68,26 @@ public class CurrencyServiceImpl implements CurrencyService {
         }
 
         return convertToDTO(optionalExchangeRate.get());
+    }
+
+    //TODO: изменить ошибки их типы
+    @Override
+    public ExchangeRateDTO addExchangeRate(ExchangeRateCreationDTO exchangeRateCreationDTO) {
+        Currency baseCurrency = currencyDao.getCurrency(exchangeRateCreationDTO.getBaseCurrency())
+                .orElseThrow(() -> new CurrencyNotFoundException("Currency " + exchangeRateCreationDTO.getBaseCurrency() + " not found"));
+        Currency targetCurrency = currencyDao.getCurrency(exchangeRateCreationDTO.getTargetCurrency()).
+                orElseThrow(() -> new CurrencyNotFoundException("Currency " + exchangeRateCreationDTO.getTargetCurrency() + " not found"));
+
+        if (!currencyDao.exchangeRateExists(baseCurrency.getId(), targetCurrency.getId())) {
+            BigDecimal rate = new BigDecimal(exchangeRateCreationDTO.getRate());
+            ExchangeRate exchangeRate = currencyDao.addExchangeRate(baseCurrency, targetCurrency, rate);
+            return convertToDTO(exchangeRate);
+        } else {
+            throw new CurrencyNotFoundException("Exchange Rate " +
+                    exchangeRateCreationDTO.getBaseCurrency() +
+                    exchangeRateCreationDTO.getTargetCurrency() +
+                    " already exists");
+        }
     }
 
 

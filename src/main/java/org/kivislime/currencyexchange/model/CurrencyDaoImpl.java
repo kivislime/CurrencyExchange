@@ -2,6 +2,7 @@ package org.kivislime.currencyexchange.model;
 
 import org.kivislime.currencyexchange.DatabaseConnectionManager;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 
@@ -119,7 +120,7 @@ public class CurrencyDaoImpl implements CurrencyDao {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Long exchangeId = rs.getLong("exchange_id");
-                    Double rate = rs.getDouble("rate");
+                    BigDecimal rate = rs.getBigDecimal("rate"); //TODO: исправить на bigdecimal!
 
                     Currency baseCurrency = new Currency(
                             rs.getLong("base_id"),
@@ -157,11 +158,57 @@ public class CurrencyDaoImpl implements CurrencyDao {
                             rs.getLong("id"),
                             baseCurrency,
                             targetCurrency,
-                            rs.getDouble("rate")
+                            rs.getBigDecimal("rate")
                     ));
                 } else
                     return Optional.empty();
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean exchangeRateExists(Long baseId, Long targetId) {
+        String sql = "SELECT * FROM exchangerates WHERE basecurrencyid = ? AND targetcurrencyid = ?";
+        try (Connection connection = DatabaseConnectionManager.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setLong(1, baseId);
+            stmt.setLong(2, targetId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ExchangeRate addExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate) {
+        String sql = "INSERT INTO exchangerates(basecurrencyid, targetcurrencyid, rate) VALUES(?, ?, ?)";
+        try (Connection connection = DatabaseConnectionManager.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setLong(1, baseCurrency.getId());
+            stmt.setLong(2, targetCurrency.getId());
+            stmt.setBigDecimal(3, rate);
+
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Failed to insert exchange rate");
+            }
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return new ExchangeRate(rs.getLong(1), baseCurrency, targetCurrency, rate);
+                } else {
+                    throw new SQLException("Inserting currency exchange rate, no ID obtained.");
+                }
+            }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
