@@ -20,4 +20,6 @@ public interface CurrencyDao{
     boolean exchangeRateExists(Long id, Long id1);
 
     ExchangeRate addExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate);
+
+    ExchangeRate patchExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate);
 }

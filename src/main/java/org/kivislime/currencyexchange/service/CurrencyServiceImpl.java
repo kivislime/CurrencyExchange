@@ -52,6 +52,10 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public ExchangeRateDTO getExchangeRateByPair(String pathInfo) {
+        if (pathInfo.startsWith("/")) {
+            pathInfo = pathInfo.substring(1);
+        }
+
         String firstOfPair = pathInfo.substring(0, pathInfo.length() / 2);
         String secondOfPair = pathInfo.substring(pathInfo.length() / 2);
 
@@ -81,6 +85,7 @@ public class CurrencyServiceImpl implements CurrencyService {
         if (!currencyDao.exchangeRateExists(baseCurrency.getId(), targetCurrency.getId())) {
             BigDecimal rate = new BigDecimal(exchangeRateCreationDTO.getRate());
             ExchangeRate exchangeRate = currencyDao.addExchangeRate(baseCurrency, targetCurrency, rate);
+
             return convertToDTO(exchangeRate);
         } else {
             throw new CurrencyNotFoundException("Exchange Rate " +
@@ -88,6 +93,26 @@ public class CurrencyServiceImpl implements CurrencyService {
                     exchangeRateCreationDTO.getTargetCurrency() +
                     " already exists");
         }
+    }
+
+    @Override
+    public ExchangeRateDTO patchExchangeRate(String pathInfo, String rate) {
+        if (pathInfo.startsWith("/")) {
+            pathInfo = pathInfo.substring(1);
+        }
+
+        String firstOfPair = pathInfo.substring(0, pathInfo.length() / 2);
+        String secondOfPair = pathInfo.substring(pathInfo.length() / 2);
+        BigDecimal rateInDecimal = new BigDecimal(rate);
+
+        Currency baseCurrency = currencyDao.getCurrency(firstOfPair)
+                .orElseThrow(() -> new CurrencyNotFoundException("Currency " + firstOfPair + " not found"));
+        Currency targetCurrency = currencyDao.getCurrency(secondOfPair)
+                .orElseThrow(() -> new CurrencyNotFoundException("Currency " + secondOfPair + " not found"));
+
+        ExchangeRate exchangeRate = currencyDao.patchExchangeRate(baseCurrency, targetCurrency, rateInDecimal);
+
+        return convertToDTO(exchangeRate);
     }
 
 

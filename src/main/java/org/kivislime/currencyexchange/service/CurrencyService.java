@@ -21,4 +21,6 @@ public interface CurrencyService {
     ExchangeRateDTO getExchangeRateByPair(String pathInfo);
 
     ExchangeRateDTO addExchangeRate(ExchangeRateCreationDTO exchangeRateCreationDTO);
+
+    ExchangeRateDTO patchExchangeRate(String getPathInfo, String rate);
 }

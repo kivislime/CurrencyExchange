@@ -35,6 +35,7 @@ public class CurrenciesServlet extends HttpServlet {
         String name = request.getParameter("name");
         String sign = request.getParameter("sign");
 
+        //TODO: а если пустая строка придеь?
         if (code == null || name == null || sign == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"error\":\"Missing required parameters\"}");

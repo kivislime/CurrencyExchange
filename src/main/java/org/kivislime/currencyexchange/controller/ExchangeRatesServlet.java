@@ -53,4 +53,5 @@ public class ExchangeRatesServlet extends HttpServlet {
         resp.getWriter().write(JsonUtil.toJson(result));
 
     }
+
 }

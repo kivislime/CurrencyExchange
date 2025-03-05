@@ -213,4 +213,32 @@ public class CurrencyDaoImpl implements CurrencyDao {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public ExchangeRate patchExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate) {
+        String sql = "UPDATE exchangerates SET rate = ? WHERE basecurrencyid = ? AND targetcurrencyid = ? RETURNING id, rate";
+        try (Connection connection = DatabaseConnectionManager.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setBigDecimal(1, rate);
+            stmt.setLong(2, baseCurrency.getId());
+            stmt.setLong(3, targetCurrency.getId());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new ExchangeRate(
+                            rs.getLong("id"),
+                            baseCurrency,
+                            targetCurrency,
+                            rs.getBigDecimal("rate")
+                    );
+                } else {
+                    throw new SQLException("Updating exchange rate failed, no row returned.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
