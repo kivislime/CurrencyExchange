@@ -3,6 +3,7 @@ package org.kivislime.currencyexchange.service;
 import org.kivislime.currencyexchange.model.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -115,6 +116,87 @@ public class CurrencyServiceImpl implements CurrencyService {
         return convertToDTO(exchangeRate);
     }
 
+    @Override
+    public ExchangeResultDTO exchange(ExchangeResultCreationDTO exchangeResultCreationDTO) {
+        Currency baseCurrency = currencyDao.getCurrency(exchangeResultCreationDTO.getFrom())
+                .orElseThrow(() -> new CurrencyNotFoundException("Currency " + exchangeResultCreationDTO.getFrom() + " not found"));
+        Currency targetCurrency = currencyDao.getCurrency(exchangeResultCreationDTO.getTo())
+                .orElseThrow(() -> new CurrencyNotFoundException("Currency " + exchangeResultCreationDTO.getTo() + " not found"));
+        BigDecimal amount = new BigDecimal(exchangeResultCreationDTO.getAmount());
+
+
+        Optional<ExchangeResult> exchangeResultDirectExchange = calculateDirectExchange(baseCurrency, targetCurrency, amount);
+        if (exchangeResultDirectExchange.isPresent()) {
+            return convertToDTO(exchangeResultDirectExchange.get());
+        }
+
+        Optional<ExchangeResult> exchangeResultIndirectExchange = calculateIndirectExchange(baseCurrency, targetCurrency, amount);
+        if (exchangeResultIndirectExchange.isPresent()) {
+            return convertToDTO(exchangeResultIndirectExchange.get());
+        } else {
+            throw new CurrencyNotFoundException("Exchange rate for "
+                    + baseCurrency.getCode() + " to " + targetCurrency.getCode() + " not found"); //TODO:  изменить тип ошибки
+        }
+
+    }
+
+    private Optional<ExchangeResult> calculateDirectExchange(Currency baseCurrency, Currency
+            targetCurrency, BigDecimal amount) {
+
+        Optional<BigDecimal> optionalRate = currencyDao.getRate(baseCurrency.getId(), targetCurrency.getId());
+        Optional<BigDecimal> optionalInverseRate = currencyDao.getRate(targetCurrency.getId(), baseCurrency.getId());
+        boolean needsInversion  = false;
+
+        if (optionalRate.isEmpty()) {
+            if (optionalInverseRate.isEmpty()) {
+                return Optional.empty();
+            } else {
+                needsInversion  = true;
+                optionalRate = optionalInverseRate;
+            }
+        }
+
+        BigDecimal normalizedRate = needsInversion  ?
+                BigDecimal.ONE.divide(optionalRate.get(), 10, RoundingMode.HALF_EVEN) : optionalRate.get();
+
+        BigDecimal convertedAmount = amount.multiply(normalizedRate);
+        ExchangeResult exchangeResult = new ExchangeResult(
+                baseCurrency,
+                targetCurrency,
+                normalizedRate,
+                amount,
+                convertedAmount
+        );
+
+        return Optional.of(exchangeResult);
+    }
+
+    private Optional<ExchangeResult> calculateIndirectExchange(Currency baseCurrency, Currency
+            targetCurrency, BigDecimal amount) {
+        Set<Long> baseExchangeableCurrencyIds = currencyDao.getExchangeableCurrencyIdsForCurrency(baseCurrency.getId());
+        Set<Long> targetExchangeableCurrencyIds = currencyDao.getExchangeableCurrencyIdsForCurrency(targetCurrency.getId());
+
+        for (Long candidateCurrencyId : baseExchangeableCurrencyIds) {
+            if (targetExchangeableCurrencyIds.contains(candidateCurrencyId)) {
+                Optional<BigDecimal> optionalBaseCurrencyRate = currencyDao.getRate(baseCurrency.getId(), candidateCurrencyId);
+                Optional<BigDecimal> optionalTargetCurrencyRate = currencyDao.getRate(targetCurrency.getId(), candidateCurrencyId);
+
+                BigDecimal baseCurrencyRate = optionalBaseCurrencyRate.orElseThrow(
+                        () -> new CurrencyNotFoundException("Rate for " + baseCurrency.getCode() + " not found"));
+                BigDecimal targetCurrencyRate = optionalTargetCurrencyRate.orElseThrow(
+                        () -> new CurrencyNotFoundException("Rate for " + targetCurrency.getCode() + " not found")
+                );
+
+                BigDecimal calculatedRate = baseCurrencyRate.divide(targetCurrencyRate, 10, RoundingMode.HALF_EVEN);
+                BigDecimal convertedAmount = amount.multiply(calculatedRate);
+
+                ExchangeResult exchangeResult = new ExchangeResult(baseCurrency, targetCurrency, calculatedRate, amount, convertedAmount);
+                return Optional.of(exchangeResult);
+            }
+        }
+        return Optional.empty();
+    }
+
 
     private Currency convertToCurrency(CurrencyCreationDTO currencyCreationDTO) {
         return new Currency(null, currencyCreationDTO.getCode(), currencyCreationDTO.getName(), currencyCreationDTO.getSign());
@@ -130,5 +212,9 @@ public class CurrencyServiceImpl implements CurrencyService {
                 convertToDTO(exchangeRate.getBaseCurrency()),
                 convertToDTO(exchangeRate.getTargetCurrency()),
                 exchangeRate.getRate());
+    }
+
+    private ExchangeResultDTO convertToDTO(ExchangeResult exchangeResult) {
+        return new ExchangeResultDTO(exchangeResult.getBaseCurrency(), exchangeResult.getTargetCurrency(), exchangeResult.getRate(), exchangeResult.getAmount(), exchangeResult.getConvertedAmount());
     }
 }

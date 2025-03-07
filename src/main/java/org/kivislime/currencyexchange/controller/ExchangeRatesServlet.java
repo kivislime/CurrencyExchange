@@ -6,7 +6,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.kivislime.currencyexchange.model.ExchangeRate;
 import org.kivislime.currencyexchange.model.ExchangeRateCreationDTO;
 import org.kivislime.currencyexchange.model.ExchangeRateDTO;
 import org.kivislime.currencyexchange.service.CurrencyService;

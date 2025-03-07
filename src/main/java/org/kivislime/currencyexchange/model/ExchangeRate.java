@@ -47,6 +47,5 @@ public class ExchangeRate {
                 Objects.equals(targetCurrency, that.targetCurrency) &&
                 Objects.equals(rate, that.rate);
     }
-
 }
 

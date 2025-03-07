@@ -1,9 +1,6 @@
 package org.kivislime.currencyexchange.service;
 
-import org.kivislime.currencyexchange.model.CurrencyCreationDTO;
-import org.kivislime.currencyexchange.model.CurrencyDTO;
-import org.kivislime.currencyexchange.model.ExchangeRateCreationDTO;
-import org.kivislime.currencyexchange.model.ExchangeRateDTO;
+import org.kivislime.currencyexchange.model.*;
 
 import java.util.Set;
 
@@ -23,4 +20,6 @@ public interface CurrencyService {
     ExchangeRateDTO addExchangeRate(ExchangeRateCreationDTO exchangeRateCreationDTO);
 
     ExchangeRateDTO patchExchangeRate(String getPathInfo, String rate);
+
+    ExchangeResultDTO exchange(ExchangeResultCreationDTO exchangeResultCreationDTO);
 }

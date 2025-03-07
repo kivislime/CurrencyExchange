@@ -22,4 +22,8 @@ public interface CurrencyDao{
     ExchangeRate addExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate);
 
     ExchangeRate patchExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate);
+
+    Set<Long> getExchangeableCurrencyIdsForCurrency(Long id);
+
+    Optional<BigDecimal> getRate(Long baseCurrencyId, Long targetCurrencyId);
 }

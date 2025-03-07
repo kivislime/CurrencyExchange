@@ -241,4 +241,45 @@ public class CurrencyDaoImpl implements CurrencyDao {
         }
     }
 
+    public Set<Long> getExchangeableCurrencyIdsForCurrency(Long id) {
+        String sql = "SELECT targetcurrencyid from exchangerates where basecurrencyid = ?";
+        try (Connection connection = DatabaseConnectionManager.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setLong(1, id);
+
+            Set<Long> result = new HashSet<>();
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    result.add(rs.getLong("targetcurrencyid"));
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<BigDecimal> getRate(Long baseCurrencyId, Long targetCurrencyId) {
+        String sql = "SELECT rate from exchangerates WHERE basecurrencyid = ? AND targetcurrencyid = ?";
+        try (Connection connection = DatabaseConnectionManager.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setLong(1, baseCurrencyId);
+            stmt.setLong(2, targetCurrencyId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(rs.getBigDecimal("rate"));
+                } else {
+                    return Optional.empty();
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }
