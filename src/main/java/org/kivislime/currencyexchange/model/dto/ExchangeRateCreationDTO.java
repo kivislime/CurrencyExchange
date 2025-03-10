@@ -1,34 +1,27 @@
-package org.kivislime.currencyexchange.model;
+package org.kivislime.currencyexchange.model.dto;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 
-public class ExchangeRate {
-    private final Long id;
-    private final Currency baseCurrency;
-    private final Currency targetCurrency;
-    private final BigDecimal rate;
+public class ExchangeRateCreationDTO {
+    private final String baseCurrency;
+    private final String targetCurrency;
+    private final String rate;
 
-    public ExchangeRate(Long id, Currency baseCurrency, Currency targetCurrency, BigDecimal rate) {
-        this.id = id;
+    public ExchangeRateCreationDTO(String baseCurrency, String targetCurrency, String rate) {
         this.baseCurrency = baseCurrency;
         this.targetCurrency = targetCurrency;
         this.rate = rate;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Currency getBaseCurrency() {
+    public String getBaseCurrency() {
         return baseCurrency;
     }
 
-    public Currency getTargetCurrency() {
+    public String getTargetCurrency() {
         return targetCurrency;
     }
 
-    public BigDecimal getRate() {
+    public String getRate() {
         return rate;
     }
 
@@ -42,10 +35,10 @@ public class ExchangeRate {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
 
-        ExchangeRate that = (ExchangeRate) obj;
+        ExchangeRateCreationDTO that = (ExchangeRateCreationDTO) obj;
         return Objects.equals(baseCurrency, that.baseCurrency) &&
                 Objects.equals(targetCurrency, that.targetCurrency) &&
                 Objects.equals(rate, that.rate);
     }
-}
 
+}

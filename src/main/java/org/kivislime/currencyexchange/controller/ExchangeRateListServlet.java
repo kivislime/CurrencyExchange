@@ -6,8 +6,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.kivislime.currencyexchange.model.ExchangeRateCreationDTO;
-import org.kivislime.currencyexchange.model.ExchangeRateDTO;
+import org.kivislime.currencyexchange.model.dto.ExchangeRateCreationDTO;
+import org.kivislime.currencyexchange.model.dto.ExchangeRateDTO;
 import org.kivislime.currencyexchange.service.CurrencyService;
 import org.kivislime.currencyexchange.util.JsonUtil;
 
@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Set;
 
 @WebServlet(value = "/exchangeRates/*")
-public class ExchangeRatesServlet extends HttpServlet {
+public class ExchangeRateListServlet extends HttpServlet {
     private CurrencyService currencyService;
 
     @Override
@@ -29,6 +29,7 @@ public class ExchangeRatesServlet extends HttpServlet {
         resp.setContentType("application/json");
         Set<ExchangeRateDTO> exchangeRateDTOS = currencyService.getAllExchangeRates();
         String json = JsonUtil.toJson(exchangeRateDTOS);
+        resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(json);
     }
 
@@ -39,17 +40,25 @@ public class ExchangeRatesServlet extends HttpServlet {
         String targetCurrencyCode = req.getParameter("targetCurrencyCode");
         String rate = req.getParameter("rate");
 
-        if (baseCurrencyCode == null || targetCurrencyCode == null || rate == null) {
+        if (baseCurrencyCode == null || targetCurrencyCode == null || rate == null ||
+                baseCurrencyCode.trim().isEmpty() || targetCurrencyCode.trim().isEmpty() || rate.trim().isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("{\"error\":\"Missing required parameters\"}");
             return;
         }
 
-        ExchangeRateCreationDTO exchangeRateCreationDTO = new ExchangeRateCreationDTO(baseCurrencyCode, targetCurrencyCode, rate);
-        ExchangeRateDTO result = currencyService.addExchangeRate(exchangeRateCreationDTO);
+        try {
+            String parsedRate = rate.replace(',', '.');
+            ExchangeRateCreationDTO exchangeRateCreationDTO = new ExchangeRateCreationDTO(baseCurrencyCode, targetCurrencyCode, parsedRate);
+            ExchangeRateDTO result = currencyService.addExchangeRate(exchangeRateCreationDTO);
 
-        resp.setStatus(HttpServletResponse.SC_OK);
-        resp.getWriter().write(JsonUtil.toJson(result));
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().write(JsonUtil.toJson(result));
+
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\":\"Invalid rate format\"}");
+        }
 
     }
 

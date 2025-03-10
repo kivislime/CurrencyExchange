@@ -1,4 +1,7 @@
-package org.kivislime.currencyexchange.model;
+package org.kivislime.currencyexchange.model.dao;
+
+import org.kivislime.currencyexchange.model.domain.Currency;
+import org.kivislime.currencyexchange.model.domain.ExchangeRate;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -7,9 +10,9 @@ import java.util.Set;
 public interface CurrencyDao{
     Set<Currency> getCurrencies();
 
-    boolean currencyExists(String currency);
+    boolean currencyExists(String currencyCode);
 
-    Optional<Currency> getCurrency(String currency);
+    Optional<Currency> getCurrency(String currencyCode);
 
     Currency addCurrency(Currency currency);
 
@@ -26,4 +29,6 @@ public interface CurrencyDao{
     Set<Long> getExchangeableCurrencyIdsForCurrency(Long id);
 
     Optional<BigDecimal> getRate(Long baseCurrencyId, Long targetCurrencyId);
+
+    Set<Long> getIntersectIds(Currency baseCurrency, Currency targetCurrency);
 }

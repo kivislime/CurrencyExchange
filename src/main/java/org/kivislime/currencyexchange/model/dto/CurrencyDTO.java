@@ -1,21 +1,21 @@
-package org.kivislime.currencyexchange.model;
+package org.kivislime.currencyexchange.model.dto;
 
 import java.util.Objects;
 
-public class Currency {
+public class CurrencyDTO {
     private final Long id;
     private final String code;
     private final String name;
     private final String sign;
 
-    public Currency(Long id, String code, String name, String sign) {
+    public CurrencyDTO(Long id, String code, String name, String sign) {
         this.id = id;
         this.code = code;
         this.name = name;
         this.sign = sign;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
@@ -41,11 +41,10 @@ public class Currency {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
 
-        Currency that = (Currency) obj;
+        CurrencyDTO that = (CurrencyDTO) obj;
         return Objects.equals(id, that.id) &&
                 Objects.equals(code, that.code) &&
                 Objects.equals(name, that.name) &&
                 Objects.equals(sign, that.sign);
     }
 }
-

@@ -1,4 +1,4 @@
-package org.kivislime.currencyexchange.model;
+package org.kivislime.currencyexchange.model.dto;
 
 
 import java.util.Objects;

@@ -6,9 +6,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.kivislime.currencyexchange.model.ExchangeResultCreationDTO;
+import org.kivislime.currencyexchange.model.dto.ExchangeResultCreationDTO;
+import org.kivislime.currencyexchange.model.dto.ExchangeResultDTO;
 import org.kivislime.currencyexchange.service.CurrencyService;
-import org.kivislime.currencyexchange.service.ExchangeResultDTO;
 import org.kivislime.currencyexchange.util.JsonUtil;
 
 import java.io.IOException;
@@ -29,7 +29,9 @@ public class ExchangeServlet extends HttpServlet {
         String from = req.getParameter("from");
         String to = req.getParameter("to");
         String amount = req.getParameter("amount");
-        if (from == null || to == null || amount == null) {
+
+        if (from == null || to == null || amount == null ||
+        from.trim().isEmpty() || to.trim().isEmpty() || amount.trim().isEmpty()) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -42,3 +44,4 @@ public class ExchangeServlet extends HttpServlet {
     }
 
 }
+

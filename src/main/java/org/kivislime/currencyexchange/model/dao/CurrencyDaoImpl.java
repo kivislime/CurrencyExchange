@@ -1,13 +1,14 @@
-package org.kivislime.currencyexchange.model;
+package org.kivislime.currencyexchange.model.dao;
 
 import org.kivislime.currencyexchange.DatabaseConnectionManager;
+import org.kivislime.currencyexchange.exception.DaoException;
+import org.kivislime.currencyexchange.model.domain.ExchangeRate;
+import org.kivislime.currencyexchange.model.domain.Currency;
 
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 
-//TODO: нет обработки, если таблица пустая. Че выдаст?
-//TODO: переименоват домены бд? Всё с маленькой буквы
 public class CurrencyDaoImpl implements CurrencyDao {
     @Override
     public Set<Currency> getCurrencies() {
@@ -19,36 +20,36 @@ public class CurrencyDaoImpl implements CurrencyDao {
             while (rs.next()) {
                 Long id = rs.getLong("id");
                 String code = rs.getString("code");
-                String name = rs.getString("fullname");
+                String name = rs.getString("full_name");
                 String sign = rs.getString("sign");
                 Currency currency = new Currency(id, code, name, sign);
                 currencies.add(currency);
             }
             return currencies;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException("Error retrieving the list of currencies", e);
         }
     }
 
     @Override
-    public boolean currencyExists(String currency) {
+    public boolean currencyExists(String currencyCode) {
         String sql = "SELECT code FROM currencies WHERE code = ?";
         try (Connection conn = DatabaseConnectionManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, currency);
+            ps.setString(1, currencyCode);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException("Error retrieving currency with code: " + currencyCode, e);
         }
     }
 
 
     @Override
     public Optional<Currency> getCurrency(String currencyCode) {
-        String sql = "SELECT id, code, fullname, sign FROM currencies WHERE code = ?";
+        String sql = "SELECT id, code, full_name, sign FROM currencies WHERE code = ?";
         try (Connection conn = DatabaseConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -58,7 +59,7 @@ public class CurrencyDaoImpl implements CurrencyDao {
                     Currency currency = new Currency(
                             rs.getLong("id"),
                             rs.getString("code"),
-                            rs.getString("fullname"),
+                            rs.getString("full_name"),
                             rs.getString("sign")
                     );
                     return Optional.of(currency);
@@ -67,13 +68,13 @@ public class CurrencyDaoImpl implements CurrencyDao {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException("Error retrieving currency with code: " + currencyCode, e);
         }
     }
 
     @Override
     public Currency addCurrency(Currency currency) {
-        String sql = "INSERT INTO currencies(code, fullname, sign) VALUES(?, ?, ?)";
+        String sql = "INSERT INTO currencies(code, full_name, sign) VALUES(?, ?, ?)";
         try (Connection conn = DatabaseConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -82,19 +83,19 @@ public class CurrencyDaoImpl implements CurrencyDao {
             stmt.setString(3, currency.getSign());
             int rs = stmt.executeUpdate();
             if (rs == 0) {
-                throw new SQLException("Failed to insert currency");
+                throw new SQLException("Error inserting currency, no row returned.");
             }
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     return new Currency(generatedKeys.getLong(1), currency.getCode(), currency.getName(), currency.getSign());
                 } else {
-                    throw new SQLException("Inserting currency failed, no ID obtained.");
+                    throw new DaoException("Error inserting currency, no ID obtained.");
                 }
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException("Error inserting currency: " + currency.getCode(), e);
         }
     }
 
@@ -103,16 +104,16 @@ public class CurrencyDaoImpl implements CurrencyDao {
         String sql = "SELECT er.id       AS exchange_id,\n" +
                 "       c.id        AS base_id,\n" +
                 "       c.code      AS base_code,\n" +
-                "       c.fullname  AS base_name,\n" +
+                "       c.full_name  AS base_name,\n" +
                 "       c.sign      AS base_sign,\n" +
                 "       c2.id       AS target_id,\n" +
                 "       c2.code     AS target_code,\n" +
-                "       c2.fullname AS target_name,\n" +
+                "       c2.full_name AS target_name,\n" +
                 "       c2.sign     AS target_sign,\n" +
                 "       er.rate\n" +
-                "FROM exchangerates er\n" +
-                "         JOIN public.currencies c on c.id = er.basecurrencyid\n" +
-                "         JOIN public.currencies c2 on c2.id = er.targetcurrencyid\n";
+                "FROM exchange_rates er\n" +
+                "         JOIN public.currencies c on c.id = er.base_currency_id\n" +
+                "         JOIN public.currencies c2 on c2.id = er.target_currency_id\n";
 
         try (Connection conn = DatabaseConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -120,7 +121,7 @@ public class CurrencyDaoImpl implements CurrencyDao {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Long exchangeId = rs.getLong("exchange_id");
-                    BigDecimal rate = rs.getBigDecimal("rate"); //TODO: исправить на bigdecimal!
+                    BigDecimal rate = rs.getBigDecimal("rate");
 
                     Currency baseCurrency = new Currency(
                             rs.getLong("base_id"),
@@ -139,13 +140,13 @@ public class CurrencyDaoImpl implements CurrencyDao {
                 return exchangeRates;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException("Error retrieving the list of exchange rates", e);
         }
     }
 
     @Override
     public Optional<ExchangeRate> getExchangeRateByPair(Currency baseCurrency, Currency targetCurrency) {
-        String sql = "SELECT * FROM exchangerates WHERE basecurrencyid = ? AND targetcurrencyid = ?";
+        String sql = "SELECT * FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ?";
         try (Connection conn = DatabaseConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -164,13 +165,13 @@ public class CurrencyDaoImpl implements CurrencyDao {
                     return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException("Error retrieving currency rate", e);
         }
     }
 
     @Override
     public boolean exchangeRateExists(Long baseId, Long targetId) {
-        String sql = "SELECT * FROM exchangerates WHERE basecurrencyid = ? AND targetcurrencyid = ?";
+        String sql = "SELECT * FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ?";
         try (Connection connection = DatabaseConnectionManager.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
@@ -182,13 +183,13 @@ public class CurrencyDaoImpl implements CurrencyDao {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException("Error retrieving currency rate", e);
         }
     }
 
     @Override
     public ExchangeRate addExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate) {
-        String sql = "INSERT INTO exchangerates(basecurrencyid, targetcurrencyid, rate) VALUES(?, ?, ?)";
+        String sql = "INSERT INTO exchange_rates(base_currency_id, target_currency_id, rate) VALUES(?, ?, ?)";
         try (Connection connection = DatabaseConnectionManager.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -198,25 +199,25 @@ public class CurrencyDaoImpl implements CurrencyDao {
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException("Failed to insert exchange rate");
+                throw new DaoException("Error inserting exchange rate, no row returned.");
             }
 
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
                     return new ExchangeRate(rs.getLong(1), baseCurrency, targetCurrency, rate);
                 } else {
-                    throw new SQLException("Inserting currency exchange rate, no ID obtained.");
+                    throw new DaoException("Error inserting currency exchange rate, no ID obtained.");
                 }
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException("Error inserting currency exchange rate", e);
         }
     }
 
     @Override
     public ExchangeRate patchExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate) {
-        String sql = "UPDATE exchangerates SET rate = ? WHERE basecurrencyid = ? AND targetcurrencyid = ? RETURNING id, rate";
+        String sql = "UPDATE exchange_rates SET rate = ? WHERE base_currency_id = ? AND target_currency_id = ? RETURNING id, rate";
         try (Connection connection = DatabaseConnectionManager.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
@@ -233,16 +234,16 @@ public class CurrencyDaoImpl implements CurrencyDao {
                             rs.getBigDecimal("rate")
                     );
                 } else {
-                    throw new SQLException("Updating exchange rate failed, no row returned.");
+                    throw new DaoException("Error updating exchange rate, no row returned.");
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException("Error updating exchange rate", e);
         }
     }
 
     public Set<Long> getExchangeableCurrencyIdsForCurrency(Long id) {
-        String sql = "SELECT targetcurrencyid from exchangerates where basecurrencyid = ?";
+        String sql = "SELECT target_currency_id FROM exchange_rates WHERE base_currency_id = ?";
         try (Connection connection = DatabaseConnectionManager.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
@@ -251,23 +252,23 @@ public class CurrencyDaoImpl implements CurrencyDao {
             Set<Long> result = new HashSet<>();
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    result.add(rs.getLong("targetcurrencyid"));
+                    result.add(rs.getLong("target_currency_id"));
                 }
                 return result;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException("Error retrieving currency", e);
         }
     }
 
     @Override
-    public Optional<BigDecimal> getRate(Long baseCurrencyId, Long targetCurrencyId) {
-        String sql = "SELECT rate from exchangerates WHERE basecurrencyid = ? AND targetcurrencyid = ?";
+    public Optional<BigDecimal> getRate(Long base_currency_id, Long target_currency_id) {
+        String sql = "SELECT rate FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ?";
         try (Connection connection = DatabaseConnectionManager.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setLong(1, baseCurrencyId);
-            stmt.setLong(2, targetCurrencyId);
+            stmt.setLong(1, base_currency_id);
+            stmt.setLong(2, target_currency_id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(rs.getBigDecimal("rate"));
@@ -277,9 +278,37 @@ public class CurrencyDaoImpl implements CurrencyDao {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException("Error retrieving rate", e);
         }
     }
 
+    @Override
+    public Set<Long> getIntersectIds(Currency firstCurrency, Currency secondCurrency) {
+        String sql = "SELECT target_currency_id\n" +
+                "FROM exchange_rates\n" +
+                "WHERE base_currency_id = ?\n" +
+                "INTERSECT\n" +
+                "SELECT target_currency_id\n" +
+                "FROM exchange_rates\n" +
+                "WHERE base_currency_id = ?;\n";
 
+        try (Connection connection = DatabaseConnectionManager.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setLong(1, firstCurrency.getId());
+            stmt.setLong(2, secondCurrency.getId());
+
+            Set<Long> result = new HashSet<>();
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    result.add(rs.getLong("target_currency_id"));
+                }
+            }
+
+            return result;
+
+        } catch (SQLException e) {
+            throw new DaoException("Error retrieving ids", e);
+        }
+    }
 }

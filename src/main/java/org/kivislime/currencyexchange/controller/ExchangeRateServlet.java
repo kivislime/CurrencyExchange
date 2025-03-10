@@ -6,7 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.kivislime.currencyexchange.model.ExchangeRateDTO;
+import org.kivislime.currencyexchange.model.dto.ExchangeRateDTO;
 import org.kivislime.currencyexchange.service.CurrencyService;
 import org.kivislime.currencyexchange.util.JsonUtil;
 import org.kivislime.currencyexchange.util.ParseUtil;
@@ -52,7 +52,7 @@ public class ExchangeRateServlet extends HttpServlet {
         }
 
         ExchangeRateDTO exchangeRateDTO = currencyService.getExchangeRateByPair(pathInfo);
-        resp.setStatus(HttpServletResponse.SC_OK);//TODO: расставить везде явно статусы
+        resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(JsonUtil.toJson(exchangeRateDTO));
     }
 
@@ -65,7 +65,7 @@ public class ExchangeRateServlet extends HttpServlet {
         String pathInfo = req.getPathInfo();
         String rate = parsedParams.get("rate");
 
-        if (rate == null || rate.isEmpty() || pathInfo == null || pathInfo.equals("/")) {
+        if (rate == null || rate.trim().isEmpty() || pathInfo == null || pathInfo.equals("/")) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("{\"error\":\"Rate is required\"}");
             return;

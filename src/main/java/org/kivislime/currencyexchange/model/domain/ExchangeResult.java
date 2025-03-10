@@ -1,19 +1,16 @@
-package org.kivislime.currencyexchange.service;
-
-import org.kivislime.currencyexchange.model.Currency;
+package org.kivislime.currencyexchange.model.domain;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public class ExchangeResultDTO {
-
+public class ExchangeResult {
     private final Currency baseCurrency;
     private final Currency targetCurrency;
     private final BigDecimal rate;
     private final BigDecimal amount;
     private final BigDecimal convertedAmount;
 
-    public ExchangeResultDTO(Currency baseCurrency, Currency targetCurrency, BigDecimal rate, BigDecimal amount, BigDecimal convertedAmount) {
+    public ExchangeResult(Currency baseCurrency, Currency targetCurrency, BigDecimal rate, BigDecimal amount, BigDecimal convertedAmount) {
         this.baseCurrency = baseCurrency;
         this.targetCurrency = targetCurrency;
         this.rate = rate;
@@ -45,17 +42,12 @@ public class ExchangeResultDTO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ExchangeResultDTO that = (ExchangeResultDTO) o;
-        return Objects.equals(baseCurrency, that.baseCurrency) &&
-                Objects.equals(targetCurrency, that.targetCurrency) &&
-                Objects.equals(amount, that.amount) &&
-                Objects.equals(rate, that.rate) &&
-                Objects.equals(convertedAmount, that.convertedAmount);
+        ExchangeResult that = (ExchangeResult) o;
+        return Objects.equals(baseCurrency, that.baseCurrency) && Objects.equals(targetCurrency, that.targetCurrency) && Objects.equals(rate, that.rate) && Objects.equals(amount, that.amount) && Objects.equals(convertedAmount, that.convertedAmount);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(baseCurrency, targetCurrency, amount, rate, convertedAmount);
+        return Objects.hash(baseCurrency, targetCurrency, rate, amount, convertedAmount);
     }
-
 }

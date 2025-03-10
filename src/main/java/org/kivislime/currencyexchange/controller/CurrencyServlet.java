@@ -6,12 +6,11 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.kivislime.currencyexchange.model.CurrencyDTO;
+import org.kivislime.currencyexchange.model.dto.CurrencyDTO;
 import org.kivislime.currencyexchange.service.CurrencyService;
 import org.kivislime.currencyexchange.util.JsonUtil;
 
 import java.io.IOException;
-//TODO: добавить обработку исключений в через фильтр
 
 @WebServlet(value = "/currency/*")
 public class CurrencyServlet extends HttpServlet {
