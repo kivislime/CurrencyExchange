@@ -2,12 +2,14 @@ package org.kivislime.currencyexchange.model.dao;
 
 import org.kivislime.currencyexchange.DatabaseConnectionManager;
 import org.kivislime.currencyexchange.exception.DaoException;
-import org.kivislime.currencyexchange.model.domain.ExchangeRate;
 import org.kivislime.currencyexchange.model.domain.Currency;
+import org.kivislime.currencyexchange.model.domain.ExchangeRate;
 
 import java.math.BigDecimal;
 import java.sql.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 public class CurrencyDaoImpl implements CurrencyDao {
     @Override

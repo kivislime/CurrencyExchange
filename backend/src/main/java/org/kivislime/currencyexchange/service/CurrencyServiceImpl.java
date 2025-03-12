@@ -12,7 +12,6 @@ import org.kivislime.currencyexchange.model.dto.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;

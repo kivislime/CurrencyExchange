@@ -1,6 +1,5 @@
 package org.kivislime.currencyexchange.service;
 
-import org.kivislime.currencyexchange.model.domain.ExchangeResult;
 import org.kivislime.currencyexchange.model.dto.*;
 
 import java.util.Set;
