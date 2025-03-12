@@ -53,7 +53,7 @@ To send requests, use the address:
 For example, to get a list of currencies:  
 **GET http://localhost:8080/currency-exchange/currencies**
 
-Or just open **http://localhost /**, where the frontend is located,
+Or just open **http://localhost/**, where the frontend is located,
 and use the application interface.
 
 ### **Currencies**
@@ -286,7 +286,6 @@ Use docker-compose to start the containers:
 
 ```
 docker-compose up -d
-
 ```
 The docker-compose file sets up three services:
 - `db`: PostgreSQL container.
@@ -294,11 +293,4 @@ The docker-compose file sets up three services:
 - `frontend`: Nginx container serving the static frontend.
 
 ### **Development Environment**
-- Java: 11 or higher.
-- Maven: For project build.
-- Tomcat 10: As the servlet container.
-- PostgreSQL: Database for storing currencies and exchange rates.
-- Docker: For containerization and deployment.
-- Nginx: For serving static frontend files.
-
 The project is implemented without external frameworks (e.g., no Spring), using plain Java servlets and JDBC, adhering to OOP and SOLID principles.
