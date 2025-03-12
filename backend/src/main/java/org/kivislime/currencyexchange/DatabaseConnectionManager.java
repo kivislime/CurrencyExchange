@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DatabaseConnectionManager {
     private static final String URL = System.getenv("DB_URL") != null
             ? System.getenv("DB_URL")
-            : "jdbc:postgresql://DB_currency_exchange:5432/postgres";
+            : "jdbc:postgresql://localhost:5432/postgres";
     private static final String USER = System.getenv("DB_USER") != null
             ? System.getenv("DB_USER")
             : "myuser";
