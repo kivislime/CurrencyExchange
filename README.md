@@ -251,20 +251,20 @@ HTTP Codes: 200 (Success), 400 (Missing/invalid parameter), 404 (Exchange rate n
 ### **Database Schema**
 
 #### Currencies Table
-| Column     | Type      | Description                                 |
-|------------|-----------|---------------------------------------------|
-| id         | int       | Unique identifier (auto-increment)          |
-| code       | varchar   | Currency code (e.g., USD, EUR)            |
-| fullname   | varchar   | Full name of the currency                   |
-| sign       | varchar   | Currency symbol (e.g., $, €, ₽)             |
+| Column    | Type      | Description                                 |
+|-----------|-----------|---------------------------------------------|
+| id        | int       | Unique identifier (auto-increment)          |
+| code      | varchar   | Currency code (e.g., USD, EUR)            |
+| full_name | varchar   | Full name of the currency                   |
+| sign      | varchar   | Currency symbol (e.g., $, €, ₽)             |
 
 #### ExchangeRates Table
-| Column           | Type        | Description                                                               |
-|------------------|-------------|---------------------------------------------------------------------------|
-| id               | int         | Unique identifier (auto-increment)                                        |
-| basecurrencyid   | int         | Foreign key referencing Currencies (base currency)                         |
-| targetcurrencyid | int         | Foreign key referencing Currencies (target currency)                       |
-| rate             | decimal(6,4) | Exchange rate for the currency pair (precision and scale may vary)        |
+| Column             | Type        | Description                                                               |
+|--------------------|-------------|---------------------------------------------------------------------------|
+| id                 | int         | Unique identifier (auto-increment)                                        |
+| base_currency_id   | int         | Foreign key referencing Currencies (base currency)                         |
+| target_currency_id | int         | Foreign key referencing Currencies (target currency)                       |
+| rate               | decimal(6,4) | Exchange rate for the currency pair (precision and scale may vary)        |
 
 ### **Build and Deploy**
 
