@@ -1,7 +1,8 @@
 package org.kivislime.currencyexchange;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnectionManager {
@@ -15,15 +16,35 @@ public class DatabaseConnectionManager {
             ? System.getenv("DB_PASS")
             : "mysecretpassword";
 
+    private static HikariDataSource dataSource;
+
     static {
         try {
             Class.forName("org.postgresql.Driver");
+
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl(URL);
+            config.setUsername(USER);
+            config.setPassword(PASS);
+
+            config.setMaximumPoolSize(10);
+            config.setMinimumIdle(2);
+            config.setConnectionTimeout(30000);
+            config.setIdleTimeout(600000);
+
+            dataSource = new HikariDataSource(config);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Couldn't load the driver", e);
         }
     }
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASS);
+        return dataSource.getConnection();
+    }
+
+    public static void shutdown() {
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
+        }
     }
 }
