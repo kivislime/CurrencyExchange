@@ -1,14 +1,15 @@
 package org.kivislime.currencyexchange.model.dto;
 
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class ExchangeResultCreationDTO {
     private final String from;
     private final String to;
-    private final String amount;
+    private final BigDecimal amount;
 
-    public ExchangeResultCreationDTO(String from, String to, String amount) {
+    public ExchangeResultCreationDTO(String from, String to, BigDecimal amount) {
         this.from = from;
         this.to = to;
         this.amount = amount;
@@ -22,7 +23,7 @@ public class ExchangeResultCreationDTO {
         return to;
     }
 
-    public String getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 

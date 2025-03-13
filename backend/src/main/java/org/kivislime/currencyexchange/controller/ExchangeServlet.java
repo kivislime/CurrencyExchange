@@ -12,6 +12,7 @@ import org.kivislime.currencyexchange.service.CurrencyService;
 import org.kivislime.currencyexchange.util.JsonUtil;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 @WebServlet(value = "/exchange")
 public class ExchangeServlet extends HttpServlet {
@@ -31,12 +32,27 @@ public class ExchangeServlet extends HttpServlet {
         String amount = req.getParameter("amount");
 
         if (from == null || to == null || amount == null ||
-        from.trim().isEmpty() || to.trim().isEmpty() || amount.trim().isEmpty()) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                from.trim().isEmpty() || to.trim().isEmpty() || amount.trim().isEmpty()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"message\":\"Missing or empty required parameters\"}");
             return;
         }
 
-        ExchangeResultCreationDTO exchangeResultCreationDTO = new ExchangeResultCreationDTO(from, to, amount);
+        BigDecimal amountInDecimal;
+        try {
+            amountInDecimal = new BigDecimal(amount);
+            if (amountInDecimal.compareTo(BigDecimal.ZERO) < 0) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("{\"message\":\"Amount must be greater or equal than zero\"}");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"message\":\"Invalid amount format\"}");
+            return;
+        }
+
+        ExchangeResultCreationDTO exchangeResultCreationDTO = new ExchangeResultCreationDTO(from, to, amountInDecimal);
         ExchangeResultDTO convertedExchange = currencyService.exchange(exchangeResultCreationDTO);
 
         resp.setStatus(HttpServletResponse.SC_OK);

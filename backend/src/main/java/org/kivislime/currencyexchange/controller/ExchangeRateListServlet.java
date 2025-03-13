@@ -12,6 +12,7 @@ import org.kivislime.currencyexchange.service.CurrencyService;
 import org.kivislime.currencyexchange.util.JsonUtil;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Set;
 
 @WebServlet(value = "/exchangeRates/*")
@@ -47,19 +48,26 @@ public class ExchangeRateListServlet extends HttpServlet {
             return;
         }
 
+        BigDecimal rateInDecimal;
         try {
             String parsedRate = rate.replace(',', '.');
-            ExchangeRateCreationDTO exchangeRateCreationDTO = new ExchangeRateCreationDTO(baseCurrencyCode, targetCurrencyCode, parsedRate);
-            ExchangeRateDTO result = currencyService.addExchangeRate(exchangeRateCreationDTO);
-
-            resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(JsonUtil.toJson(result));
-
+            rateInDecimal = new BigDecimal(parsedRate);
+            if (rateInDecimal.compareTo(BigDecimal.ZERO) <= 0) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("{\"message\":\"Rate must be greater than 0\"}");
+                return;
+            }
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("{\"message\":\"Invalid rate format\"}");
+            return;
         }
 
+        ExchangeRateCreationDTO exchangeRateCreationDTO = new ExchangeRateCreationDTO(baseCurrencyCode, targetCurrencyCode, rateInDecimal);
+        ExchangeRateDTO result = currencyService.addExchangeRate(exchangeRateCreationDTO);
+
+        resp.setStatus(HttpServletResponse.SC_CREATED);
+        resp.getWriter().write(JsonUtil.toJson(result));
     }
 
 }
