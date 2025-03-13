@@ -1,6 +1,9 @@
 package org.kivislime.currencyexchange.util;
 
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.kivislime.currencyexchange.exception.*;
 
@@ -15,7 +18,7 @@ public class ExceptionHandlingFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
+            throws IOException {
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (CurrencyNotFoundException | ExchangeRateNotFoundException e) {

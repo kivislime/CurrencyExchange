@@ -20,7 +20,7 @@ public class ExchangeRateServlet extends HttpServlet {
     private CurrencyService currencyService;
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         ServletContext servletContext = getServletContext();
         currencyService = (CurrencyService) servletContext.getAttribute("currencyService");
     }
@@ -36,7 +36,7 @@ public class ExchangeRateServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         String pathInfo = req.getPathInfo();
 
@@ -75,7 +75,7 @@ public class ExchangeRateServlet extends HttpServlet {
         BigDecimal rateInDecimal;
         try {
             String parsedRate = rate.replace(',', '.');
-            rateInDecimal = new BigDecimal(rate);
+            rateInDecimal = new BigDecimal(parsedRate);
             if (rateInDecimal.compareTo(BigDecimal.ZERO) <= 0) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().write("{\"message\":\"Rate must be greater than 0\"}");

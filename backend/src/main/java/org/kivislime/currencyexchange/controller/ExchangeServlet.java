@@ -1,7 +1,6 @@
 package org.kivislime.currencyexchange.controller;
 
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +18,7 @@ public class ExchangeServlet extends HttpServlet {
     private CurrencyService currencyService;
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         ServletContext servletContext = getServletContext();
         currencyService = (CurrencyService) servletContext.getAttribute("currencyService");
     }

@@ -17,7 +17,7 @@ public class DatabaseConnectionManager {
             ? System.getenv("DB_PASS")
             : "mysecretpassword";
 
-    private static HikariDataSource dataSource;
+    private static final HikariDataSource dataSource;
 
     static {
         try {
