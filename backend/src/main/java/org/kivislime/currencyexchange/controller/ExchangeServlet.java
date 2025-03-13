@@ -39,7 +39,8 @@ public class ExchangeServlet extends HttpServlet {
 
         BigDecimal amountInDecimal;
         try {
-            amountInDecimal = new BigDecimal(amount);
+            String parsedRate = amount.replace(',', '.');
+            amountInDecimal = new BigDecimal(parsedRate);
             if (amountInDecimal.compareTo(BigDecimal.ZERO) < 0) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().write("{\"message\":\"Amount must be greater or equal than zero\"}");
