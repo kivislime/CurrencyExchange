@@ -47,6 +47,12 @@ public class ExchangeRateListServlet extends HttpServlet {
             return;
         }
 
+        if(baseCurrencyCode.equals(targetCurrencyCode)) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"message\":\"Currency code is same\"}");
+            return;
+        }
+
         BigDecimal rateInDecimal;
         try {
             String parsedRate = rate.replace(',', '.');
