@@ -43,7 +43,7 @@ public class ExchangeRateListServlet extends HttpServlet {
         if (baseCurrencyCode == null || targetCurrencyCode == null || rate == null ||
                 baseCurrencyCode.trim().isEmpty() || targetCurrencyCode.trim().isEmpty() || rate.trim().isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"error\":\"Missing required parameters\"}");
+            resp.getWriter().write("{\"message\":\"Missing required parameters\"}");
             return;
         }
 
@@ -57,7 +57,7 @@ public class ExchangeRateListServlet extends HttpServlet {
 
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"error\":\"Invalid rate format\"}");
+            resp.getWriter().write("{\"message\":\"Invalid rate format\"}");
         }
 
     }

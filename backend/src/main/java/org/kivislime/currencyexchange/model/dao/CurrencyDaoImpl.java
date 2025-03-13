@@ -1,6 +1,7 @@
 package org.kivislime.currencyexchange.model.dao;
 
 import org.kivislime.currencyexchange.DatabaseConnectionManager;
+import org.kivislime.currencyexchange.exception.CurrencyAlreadyExistsException;
 import org.kivislime.currencyexchange.exception.DaoException;
 import org.kivislime.currencyexchange.model.domain.Currency;
 import org.kivislime.currencyexchange.model.domain.ExchangeRate;
@@ -83,10 +84,7 @@ public class CurrencyDaoImpl implements CurrencyDao {
             stmt.setString(1, currency.getCode());
             stmt.setString(2, currency.getName());
             stmt.setString(3, currency.getSign());
-            int rs = stmt.executeUpdate();
-            if (rs == 0) {
-                throw new SQLException("Error inserting currency, no row returned.");
-            }
+            stmt.executeUpdate();
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -97,6 +95,9 @@ public class CurrencyDaoImpl implements CurrencyDao {
             }
 
         } catch (SQLException e) {
+            if (e.getSQLState().equals("23505")) {  // SQL State 23505 = Unique Violation
+                throw new CurrencyAlreadyExistsException("Currency already exists: " + currency.getCode());
+            }
             throw new DaoException("Error inserting currency: " + currency.getCode(), e);
         }
     }

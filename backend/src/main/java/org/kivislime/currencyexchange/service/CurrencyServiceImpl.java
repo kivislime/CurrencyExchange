@@ -38,9 +38,6 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public CurrencyDTO addCurrency(CurrencyCreationDTO currencyCreationDTO) {
-        if (currencyDao.currencyExists(currencyCreationDTO.getCode())) {
-            throw new CurrencyAlreadyExistsException("Currency already exists: " + currencyCreationDTO.getCode());
-        }
         Currency currencyToAdd = convertToCurrency(currencyCreationDTO);
         Currency currencyResult = currencyDao.addCurrency(currencyToAdd);
         return convertToDTO(currencyResult);

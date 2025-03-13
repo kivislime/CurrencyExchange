@@ -30,7 +30,7 @@ public class CurrencyServlet extends HttpServlet {
 
         if (pathInfo == null || pathInfo.equals("/")) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"error\":\"Currency name is required\"}");
+            resp.getWriter().write("{\"message\":\"Currency name is required\"}");
             return;
         }
 
@@ -43,7 +43,7 @@ public class CurrencyServlet extends HttpServlet {
             resp.getWriter().write(json);
         } else {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write("{\"error\":\"Currency not found\"}");
+            resp.getWriter().write("{\"message\":\"Currency not found\"}");
         }
 
     }

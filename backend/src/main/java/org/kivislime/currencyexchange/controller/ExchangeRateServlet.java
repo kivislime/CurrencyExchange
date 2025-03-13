@@ -41,13 +41,13 @@ public class ExchangeRateServlet extends HttpServlet {
 
         if (pathInfo == null || pathInfo.equals("/")) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"error\":\"Rates is required\"}");
+            resp.getWriter().write("{\"message\":\"Rates is required\"}");
             return;
         }
 
         if (!pathInfo.matches("^[A-Z]{6}$")) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"error\":\"Invalid currencies code. Expected 6 uppercase letters.\"}");
+            resp.getWriter().write("{\"message\":\"Invalid currencies code. Expected 6 uppercase letters.\"}");
             return;
         }
 
@@ -67,7 +67,7 @@ public class ExchangeRateServlet extends HttpServlet {
 
         if (rate == null || rate.trim().isEmpty() || pathInfo == null || pathInfo.equals("/")) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"error\":\"Rate is required\"}");
+            resp.getWriter().write("{\"message\":\"Rate is required\"}");
             return;
         }
 

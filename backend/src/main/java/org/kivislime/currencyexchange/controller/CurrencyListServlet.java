@@ -39,7 +39,7 @@ public class CurrencyListServlet extends HttpServlet {
         if (code == null || name == null || sign == null ||
                 code.trim().isEmpty() || name.trim().isEmpty() || sign.trim().isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"Missing or empty required parameters\"}");
+            response.getWriter().write("{\"message\":\"Missing or empty required parameters\"}");
             return;
         }
 

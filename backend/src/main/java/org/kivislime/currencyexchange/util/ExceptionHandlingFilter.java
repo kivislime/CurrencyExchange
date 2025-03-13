@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.kivislime.currencyexchange.exception.*;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,32 +20,25 @@ public class ExceptionHandlingFilter implements Filter {
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (CurrencyNotFoundException | ExchangeRateNotFoundException e) {
             logger.log(Level.WARNING, "Resource not found: {0}", e.getMessage());
-            ((HttpServletResponse) servletResponse)
-                    .sendError(HttpServletResponse.SC_NOT_FOUND, "Resource not found");
-
+            writeJsonError((HttpServletResponse) servletResponse, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         } catch (CurrencyAlreadyExistsException | ExchangeRateAlreadyExistsException e) {
             logger.log(Level.WARNING, "Resource conflict: {0}", e.getMessage());
-            ((HttpServletResponse) servletResponse)
-                    .sendError(HttpServletResponse.SC_CONFLICT, "Resource already exists");
-
+            writeJsonError((HttpServletResponse) servletResponse, HttpServletResponse.SC_CONFLICT, e.getMessage());
         } catch (DaoException e) {
             logger.log(Level.SEVERE, "Database error: " + e.getMessage(), e);
-            ((HttpServletResponse) servletResponse)
-                    .sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
-
+            writeJsonError((HttpServletResponse) servletResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Unexpected error: " + e.getMessage(), e);
-            ((HttpServletResponse) servletResponse)
-                    .sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
-
+            writeJsonError((HttpServletResponse) servletResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
     }
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
-
-    @Override
-    public void destroy() {
+    private void writeJsonError(HttpServletResponse response, int statusCode, String message) throws IOException {
+        response.setStatus(statusCode);
+        response.setContentType("application/json");
+        try (PrintWriter out = response.getWriter()) {
+            out.write("{\"message\": \"" + message + "\"}");
+            out.flush();
+        }
     }
 }
