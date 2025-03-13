@@ -2,6 +2,7 @@ package org.kivislime.currencyexchange.service;
 
 import org.kivislime.currencyexchange.model.dto.*;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
 public interface CurrencyService {
@@ -19,7 +20,7 @@ public interface CurrencyService {
 
     ExchangeRateDTO addExchangeRate(ExchangeRateCreationDTO exchangeRateCreationDTO);
 
-    ExchangeRateDTO patchExchangeRate(String getPathInfo, String rate);
+    ExchangeRateDTO patchExchangeRate(String getPathInfo, BigDecimal rate);
 
     ExchangeResultDTO exchange(ExchangeResultCreationDTO exchangeResultCreationDTO);
 }

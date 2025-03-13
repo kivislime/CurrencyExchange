@@ -3,6 +3,7 @@ package org.kivislime.currencyexchange.model.dao;
 import org.kivislime.currencyexchange.DatabaseConnectionManager;
 import org.kivislime.currencyexchange.exception.CurrencyAlreadyExistsException;
 import org.kivislime.currencyexchange.exception.DaoException;
+import org.kivislime.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.kivislime.currencyexchange.model.domain.Currency;
 import org.kivislime.currencyexchange.model.domain.ExchangeRate;
 
@@ -214,6 +215,9 @@ public class CurrencyDaoImpl implements CurrencyDao {
             }
 
         } catch (SQLException e) {
+            if (e.getSQLState().equals("23505")) {  // SQL State 23505 = Unique Violation
+                throw new ExchangeRateAlreadyExistsException("Exchange Rate " + baseCurrency.getCode() + targetCurrency.getCode() + " already exists");
+            }
             throw new DaoException("Error inserting currency exchange rate", e);
         }
     }

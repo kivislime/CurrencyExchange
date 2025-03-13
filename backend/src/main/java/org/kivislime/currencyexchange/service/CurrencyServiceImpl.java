@@ -1,6 +1,5 @@
 package org.kivislime.currencyexchange.service;
 
-import org.kivislime.currencyexchange.exception.CurrencyAlreadyExistsException;
 import org.kivislime.currencyexchange.exception.CurrencyNotFoundException;
 import org.kivislime.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.kivislime.currencyexchange.exception.ExchangeRateNotFoundException;
@@ -88,28 +87,19 @@ public class CurrencyServiceImpl implements CurrencyService {
         Currency targetCurrency = currencyDao.getCurrency(exchangeRateCreationDTO.getTargetCurrency()).
                 orElseThrow(() -> new CurrencyNotFoundException("Currency " + exchangeRateCreationDTO.getTargetCurrency() + " not found"));
 
-        if (!currencyDao.exchangeRateExists(baseCurrency.getId(), targetCurrency.getId())) {
-            BigDecimal rate = new BigDecimal(exchangeRateCreationDTO.getRate());
-            ExchangeRate exchangeRate = currencyDao.addExchangeRate(baseCurrency, targetCurrency, rate);
+        ExchangeRate exchangeRate = currencyDao.addExchangeRate(baseCurrency, targetCurrency, exchangeRateCreationDTO.getRate());
 
-            return convertToDTO(exchangeRate);
-        } else {
-            throw new ExchangeRateAlreadyExistsException("Exchange Rate " +
-                    exchangeRateCreationDTO.getBaseCurrency() +
-                    exchangeRateCreationDTO.getTargetCurrency() +
-                    " already exists");
-        }
+        return convertToDTO(exchangeRate);
     }
 
     @Override
-    public ExchangeRateDTO patchExchangeRate(String pathInfo, String rate) {
+    public ExchangeRateDTO patchExchangeRate(String pathInfo, BigDecimal rateInDecimal) {
         if (pathInfo.startsWith("/")) {
             pathInfo = pathInfo.substring(1);
         }
 
         String firstOfPair = pathInfo.substring(0, pathInfo.length() / 2);
         String secondOfPair = pathInfo.substring(pathInfo.length() / 2);
-        BigDecimal rateInDecimal = new BigDecimal(rate);
 
         Currency baseCurrency = currencyDao.getCurrency(firstOfPair)
                 .orElseThrow(() -> new CurrencyNotFoundException("Currency " + firstOfPair + " not found"));
@@ -127,15 +117,13 @@ public class CurrencyServiceImpl implements CurrencyService {
                 .orElseThrow(() -> new CurrencyNotFoundException("Currency " + exchangeResultCreationDTO.getFrom() + " not found"));
         Currency targetCurrency = currencyDao.getCurrency(exchangeResultCreationDTO.getTo())
                 .orElseThrow(() -> new CurrencyNotFoundException("Currency " + exchangeResultCreationDTO.getTo() + " not found"));
-        BigDecimal amount = new BigDecimal(exchangeResultCreationDTO.getAmount());
 
-
-        Optional<ExchangeResult> exchangeResultDirectExchange = calculateDirectExchange(baseCurrency, targetCurrency, amount);
+        Optional<ExchangeResult> exchangeResultDirectExchange = calculateDirectExchange(baseCurrency, targetCurrency, exchangeResultCreationDTO.getAmount());
         if (exchangeResultDirectExchange.isPresent()) {
             return convertToDTO(exchangeResultDirectExchange.get());
         }
 
-        Optional<ExchangeResult> exchangeResultIndirectExchange = calculateIndirectExchange(baseCurrency, targetCurrency, amount);
+        Optional<ExchangeResult> exchangeResultIndirectExchange = calculateIndirectExchange(baseCurrency, targetCurrency, exchangeResultCreationDTO.getAmount());
         if (exchangeResultIndirectExchange.isPresent()) {
             return convertToDTO(exchangeResultIndirectExchange.get());
         } else {
