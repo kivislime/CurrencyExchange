@@ -6,8 +6,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.kivislime.currencyexchange.exception.CurrencyNotFoundException;
-import org.kivislime.currencyexchange.model.dto.ExchangeRateCreationDTO;
 import org.kivislime.currencyexchange.model.dto.ExchangeRateDTO;
 import org.kivislime.currencyexchange.service.CurrencyService;
 import org.kivislime.currencyexchange.util.JsonUtil;

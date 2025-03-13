@@ -1,7 +1,6 @@
 package org.kivislime.currencyexchange.service;
 
 import org.kivislime.currencyexchange.exception.CurrencyNotFoundException;
-import org.kivislime.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.kivislime.currencyexchange.exception.ExchangeRateNotFoundException;
 import org.kivislime.currencyexchange.model.dao.CurrencyDao;
 import org.kivislime.currencyexchange.model.domain.Currency;
