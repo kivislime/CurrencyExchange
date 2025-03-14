@@ -24,7 +24,6 @@ public class AppContextListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        // Метод вызывается при остановке приложения
         System.out.println("Application context destroyed.");
     }
 }
