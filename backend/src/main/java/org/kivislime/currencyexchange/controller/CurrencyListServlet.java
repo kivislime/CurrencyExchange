@@ -24,7 +24,6 @@ public class CurrencyListServlet extends HttpServlet {
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("application/json");
         Set<CurrencyDTO> currencyDTOS = currencyService.getAllCurrencies();
         String json = JsonUtil.toJson(currencyDTOS);
         response.setStatus(HttpServletResponse.SC_OK);

@@ -26,7 +26,6 @@ public class ExchangeRateListServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json");
         Set<ExchangeRateDTO> exchangeRateDTOS = currencyService.getAllExchangeRates();
         String json = JsonUtil.toJson(exchangeRateDTOS);
         resp.setStatus(HttpServletResponse.SC_OK);
@@ -35,7 +34,6 @@ public class ExchangeRateListServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json");
         String baseCurrencyCode = req.getParameter("baseCurrencyCode");
         String targetCurrencyCode = req.getParameter("targetCurrencyCode");
         String rate = req.getParameter("rate");
