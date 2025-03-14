@@ -20,7 +20,7 @@ public interface CurrencyDao{
 
     Optional<ExchangeRate> getExchangeRateByPair(Currency firsCurrency, Currency secondCurrency);
 
-    boolean exchangeRateExists(Long id, Long id1);
+    boolean exchangeRateExists(Long baseId, Long targetId);
 
     ExchangeRate addExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate);
 
