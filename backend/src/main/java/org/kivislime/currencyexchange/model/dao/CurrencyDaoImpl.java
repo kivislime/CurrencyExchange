@@ -174,24 +174,6 @@ public class CurrencyDaoImpl implements CurrencyDao {
     }
 
     @Override
-    public boolean exchangeRateExists(Long baseId, Long targetId) {
-        String sql = "SELECT * FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ?";
-        try (Connection connection = DatabaseConnectionManager.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-
-            stmt.setLong(1, baseId);
-            stmt.setLong(2, targetId);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();
-            }
-
-        } catch (SQLException e) {
-            throw new DaoException("Error retrieving currency rate", e);
-        }
-    }
-
-    @Override
     public ExchangeRate addExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate) {
         String sql = "INSERT INTO exchange_rates(base_currency_id, target_currency_id, rate) VALUES(?, ?, ?)";
         try (Connection connection = DatabaseConnectionManager.getConnection();
@@ -246,25 +228,6 @@ public class CurrencyDaoImpl implements CurrencyDao {
             }
         } catch (SQLException e) {
             throw new DaoException("Error updating exchange rate", e);
-        }
-    }
-
-    public Set<Long> getExchangeableCurrencyIdsForCurrency(Long id) {
-        String sql = "SELECT target_currency_id FROM exchange_rates WHERE base_currency_id = ?";
-        try (Connection connection = DatabaseConnectionManager.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-
-            stmt.setLong(1, id);
-
-            Set<Long> result = new HashSet<>();
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    result.add(rs.getLong("target_currency_id"));
-                }
-                return result;
-            }
-        } catch (SQLException e) {
-            throw new DaoException("Error retrieving currency", e);
         }
     }
 

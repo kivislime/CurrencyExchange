@@ -20,13 +20,9 @@ public interface CurrencyDao{
 
     Optional<ExchangeRate> getExchangeRateByPair(Currency firsCurrency, Currency secondCurrency);
 
-    boolean exchangeRateExists(Long baseId, Long targetId);
-
     ExchangeRate addExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate);
 
     ExchangeRate patchExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate);
-
-    Set<Long> getExchangeableCurrencyIdsForCurrency(Long id);
 
     Optional<BigDecimal> getRate(Long baseCurrencyId, Long targetCurrencyId);
 
